@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "GoBack Timestamp",
-  "description": "Go back to timestamp you've clicked",
-  "version": "1.0.0",
+  "name": "Hook Timestamp",
+  "description": "Hook timestamp you've clicked",
+  "version": "0.0.1",
   "content_scripts": [
     {
       "matches": ["*://*.youtube.com/*"],
@@ -11,7 +11,6 @@
     }
   ],
   "icons": {
-    "96": "assets/timestamp-rabbit-96.png",
-    "128": "assets/timestamp-rabbit-128.png"
+    "128": "assets/hook-timestamp-128.png"
   }
 }

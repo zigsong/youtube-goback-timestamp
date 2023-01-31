@@ -38,7 +38,7 @@ const handleClickTimeStamp = (commentNode, originContainer) => {
 
   toastContainer.setAttribute(
     "style",
-    "width: 100%; border: 2px solid #B24BF3; margin-top: 12px; padding: 12px; box-sizing: border-box; border-radius: 12px; cursor: pointer;"
+    "width: 100%; border: 2px solid #32A6FF; margin-top: 12px; padding: 12px; box-sizing: border-box; border-radius: 12px; cursor: pointer;"
   );
 
   toastContainer.appendChild(commentNode);
@@ -72,7 +72,7 @@ const observeContents = (container) => {
         });
       }
     });
-  }, 2000);
+  }, 3000);
 };
 
 // MARK: MutationObserver가 2번 호출되는 버그 방지
