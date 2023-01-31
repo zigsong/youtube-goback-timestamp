@@ -3,23 +3,48 @@ document.addEventListener("DOMContentLoaded", () => {
     childList: true,
     subtree: true,
   });
-
-  console.log("DOMContentLoaded");
 });
 
+const observeOriginContainer = (
+  commentNode,
+  originContainer,
+  toastContainer
+) => {
+  const options = {
+    threshold: 1.0,
+  };
+
+  const observer = new IntersectionObserver((entries, observer) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        console.log("내려왔다!");
+        originContainer.insertBefore(commentNode, originContainer.firstChild);
+        toastContainer.remove();
+        observer.unobserve(originContainer);
+      }
+    });
+  }, options);
+
+  observer.observe(originContainer);
+};
+
 const handleClickTimeStamp = (commentNode, originContainer) => {
-  // MARK: copy할 수 있는 방안을 물색...
-  // const copiedNode = commentNode.cloneNode(true);
+  // MARK: copy할 수 있는 방안을 찾기
   const bottomArea = document.querySelector("div#below");
   const toastContainer = document.createElement("div");
 
+  const descArea = document.querySelector("div#description");
+  console.log("descArea", descArea.style.background);
+
   toastContainer.setAttribute(
     "style",
-    "width: 100%; background: rgba(255, 255, 255, 0.1); margin-top: 12px; padding: 12px; box-sizing: border-box; border-radius: 12px; cursor: pointer;"
+    "width: 100%; border: 2px solid #B24BF3; margin-top: 12px; padding: 12px; box-sizing: border-box; border-radius: 12px; cursor: pointer;"
   );
 
   toastContainer.appendChild(commentNode);
   bottomArea.insertBefore(toastContainer, bottomArea.firstChild);
+
+  observeOriginContainer(commentNode, originContainer, toastContainer);
 
   toastContainer.addEventListener("click", () => {
     originContainer.insertBefore(commentNode, originContainer.firstChild);
@@ -29,11 +54,6 @@ const handleClickTimeStamp = (commentNode, originContainer) => {
 };
 
 const observeContents = (container) => {
-  // commentsContentObserver.observe(container, {
-  //   childList: true,
-  //   subtree: true,
-  // });
-
   // TODO: setTimeout 삭제하고 개선하기
   setTimeout(() => {
     const comments = container.querySelectorAll("#comment-content");
@@ -44,9 +64,8 @@ const observeContents = (container) => {
       if (timestamps.length > 0) {
         timestamps.forEach((timestamp) => {
           if (!timestamp.textContent.startsWith("#")) {
-            timestamp.style.color = "orange";
             timestamp.addEventListener("click", () => {
-              // console.log("comment", comment);
+              console.log("content", content);
               handleClickTimeStamp(content, comment.querySelector("#expander"));
             });
           }
@@ -92,4 +111,3 @@ const commentsContentLoaded = (mutationsList, observer) => {
 };
 
 const commentsContainerObserver = new MutationObserver(commentsContainerLoaded);
-// const commentsContentObserver = new MutationObserver(commentsContentLoaded);
