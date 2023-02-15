@@ -17,7 +17,10 @@ const observeOriginContainer = (
   const observer = new IntersectionObserver((entries, observer) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
-        originContainer.insertBefore(commentNode, originContainer.firstChild);
+        originContainer.insertBefore(
+          commentNode,
+          originContainer.lastElementChild
+        );
         toastContainer.remove();
         observer.unobserve(originContainer);
       }
@@ -51,7 +54,7 @@ const handleClickTimeStamp = (commentNode, originContainer) => {
   observeOriginContainer(commentNode, originContainer, toastContainer);
 
   toastContainer.addEventListener("click", () => {
-    originContainer.insertBefore(commentNode, originContainer.firstChild);
+    originContainer.insertBefore(commentNode, originContainer.lastElementChild);
     originContainer.scrollIntoView({ behavior: "smooth" });
     toastContainer.remove();
   });
@@ -94,7 +97,7 @@ const commentsContentLoaded = (mutationsList, observer) => {
           if (!timestamp.textContent.startsWith("#")) {
             // timestamp.style.color = "orange";
             timestamp.addEventListener("click", () => {
-              handleClickTimeStamp(content, thread.querySelector("#expander"));
+              handleClickTimeStamp(content, thread.querySelector("#main"));
             });
           }
         });
