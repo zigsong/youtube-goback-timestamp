@@ -17,7 +17,6 @@ const observeOriginContainer = (
   const observer = new IntersectionObserver((entries, observer) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
-        console.log("내려왔다!");
         originContainer.insertBefore(commentNode, originContainer.firstChild);
         toastContainer.remove();
         observer.unobserve(originContainer);
@@ -32,9 +31,6 @@ const handleClickTimeStamp = (commentNode, originContainer) => {
   // MARK: copy할 수 있는 방안을 찾기
   const bottomArea = document.querySelector("div#below");
   const toastContainer = document.createElement("div");
-
-  const descArea = document.querySelector("div#description");
-  console.log("descArea", descArea.style.background);
 
   toastContainer.setAttribute(
     "style",
@@ -53,28 +49,6 @@ const handleClickTimeStamp = (commentNode, originContainer) => {
   });
 };
 
-const observeContents = (container) => {
-  // TODO: setTimeout 삭제하고 개선하기
-  setTimeout(() => {
-    const comments = container.querySelectorAll("#comment-content");
-    comments.forEach((comment) => {
-      const content = comment.querySelector("#content");
-      const timestamps = content.querySelectorAll("a");
-
-      if (timestamps.length > 0) {
-        timestamps.forEach((timestamp) => {
-          if (!timestamp.textContent.startsWith("#")) {
-            timestamp.addEventListener("click", () => {
-              console.log("content", content);
-              handleClickTimeStamp(content, comment.querySelector("#expander"));
-            });
-          }
-        });
-      }
-    });
-  }, 3000);
-};
-
 // MARK: MutationObserver가 2번 호출되는 버그 방지
 let isContainerLoaded = false;
 
@@ -85,7 +59,10 @@ const commentsContainerLoaded = (mutationsList, observer) => {
 
       const commentsContainer = mutation.target.querySelector("#contents");
       if (commentsContainer) {
-        observeContents(commentsContainer);
+        commentsContentObserver.observe(commentsContainer, {
+          childList: true,
+          subtree: true,
+        });
         isContainerLoaded = true;
       }
 
@@ -96,18 +73,29 @@ const commentsContainerLoaded = (mutationsList, observer) => {
 
 const commentsContentLoaded = (mutationsList, observer) => {
   for (const mutation of mutationsList) {
-    console.log(mutation.target.id);
+    if (mutation.target.tagName === "YTD-COMMENT-THREAD-RENDERER") {
+      const thread = mutation.target;
+      const content = thread.querySelector("#comment-content");
 
-    if (mutation.target.id === "content-text") {
-      const timestamp = mutation.target.querySelector("a");
+      if (!content) continue;
 
-      if (timestamp) {
-        timestamp.style.color = "orange";
+      const timestamps = content.querySelectorAll("a");
+
+      if (timestamps.length > 0) {
+        timestamps.forEach((timestamp) => {
+          if (!timestamp.textContent.startsWith("#")) {
+            // timestamp.style.color = "orange";
+            timestamp.addEventListener("click", () => {
+              handleClickTimeStamp(content, thread.querySelector("#expander"));
+            });
+          }
+        });
       }
-
-      observer.disconnect();
+      // TODO: 언제 호출해야 하는지?
+      // observer.disconnect();
     }
   }
 };
 
 const commentsContainerObserver = new MutationObserver(commentsContainerLoaded);
+const commentsContentObserver = new MutationObserver(commentsContentLoaded);
