@@ -34,8 +34,16 @@ const handleClickTimeStamp = (commentNode, originContainer) => {
 
   toastContainer.setAttribute(
     "style",
-    "width: 100%; border: 2px solid #32A6FF; margin-top: 12px; padding: 12px; box-sizing: border-box; border-radius: 12px; cursor: pointer;"
+    "width: 100%; border: 2px dashed #32A6FF; margin-top: 12px; padding: 12px; box-sizing: border-box; border-radius: 12px; cursor: pointer;"
   );
+
+  toastContainer.addEventListener("mouseover", () => {
+    toastContainer.style.background = "rgba(50, 166, 255, 0.2)";
+  });
+
+  toastContainer.addEventListener("mouseout", () => {
+    toastContainer.style.background = "none";
+  });
 
   toastContainer.appendChild(commentNode);
   bottomArea.insertBefore(toastContainer, bottomArea.firstChild);
