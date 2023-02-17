@@ -53,11 +53,18 @@ const handleClickTimeStamp = (commentNode, originContainer) => {
 
   observeOriginContainer(commentNode, originContainer, toastContainer);
 
-  toastContainer.addEventListener("click", () => {
-    originContainer.insertBefore(commentNode, originContainer.lastElementChild);
-    originContainer.scrollIntoView({ behavior: "smooth" });
-    toastContainer.remove();
-  });
+  toastContainer.addEventListener(
+    "click",
+    () => {
+      originContainer.insertBefore(
+        commentNode,
+        originContainer.lastElementChild
+      );
+      originContainer.scrollIntoView({ behavior: "smooth", block: "center" });
+      toastContainer.remove();
+    },
+    { capture: true }
+  );
 };
 
 // MARK: MutationObserver가 2번 호출되는 버그 방지
@@ -90,16 +97,17 @@ const commentsContentLoaded = (mutationsList, observer) => {
 
       if (!content) continue;
 
-      const timestamps = content.querySelectorAll("a");
+      const links = content.querySelectorAll("a");
+      const timestamps = [...links].filter((a) =>
+        a.getAttribute("href")?.startsWith("/watch?v")
+      );
 
       if (timestamps.length > 0) {
         timestamps.forEach((timestamp) => {
-          if (!timestamp.textContent.startsWith("#")) {
-            // timestamp.style.color = "orange";
-            timestamp.addEventListener("click", () => {
-              handleClickTimeStamp(content, thread.querySelector("#main"));
-            });
-          }
+          // timestamp.style.color = "orange";
+          timestamp.addEventListener("click", () =>
+            handleClickTimeStamp(content, thread.querySelector("#main"))
+          );
         });
       }
       // TODO: 언제 호출해야 하는지?
