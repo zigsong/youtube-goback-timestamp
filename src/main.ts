@@ -48,7 +48,9 @@ const handleClickTimeStamp = (commentNode: HTMLElement, originContainer: HTMLEle
   toastContainer.appendChild(commentNode);
   bottomArea.insertBefore(toastContainer, bottomArea.firstChild);
 
-  observeOriginContainer(commentNode, originContainer, toastContainer);
+  setTimeout(() => {
+    observeOriginContainer(commentNode, originContainer, toastContainer);
+  }, 1000);
 
   toastContainer.addEventListener(
     "click",

@@ -20,14 +20,6 @@ const observeOriginContainer = (commentNode, originContainer, toastContainer) =>
     }, options);
     observer.observe(originContainer);
 };
-// const append = (target, parent) => {
-//   console.debug("불러짐?");
-//   console.debug("target", target);
-//   console.debug("parent", parent);
-//   toastContainer.innerHTML = "aweifjaweoifjwaefoiwaeofjwfei";
-//   console.debug(toastContainer);
-//   parent.appendChild(target.cloneNode());
-// };
 const handleClickTimeStamp = (commentNode, originContainer) => {
     // MARK: copy할 수 있는 방안을 찾기
     const bottomArea = document.querySelector("div#below");
@@ -36,15 +28,14 @@ const handleClickTimeStamp = (commentNode, originContainer) => {
     toastContainer.addEventListener("mouseover", () => {
         toastContainer.style.background = "rgba(50, 166, 255, 0.2)";
     });
-    // toastContainer.addEventListener("mouseout", () => {
-    //   toastContainer.style.background = "none";
-    // });
-    console.debug("toast containerr ", toastContainer);
-    console.debug("commentNode", commentNode);
-    // append(commentNode, toastContainer);
+    toastContainer.addEventListener("mouseout", () => {
+        toastContainer.style.background = "none";
+    });
     toastContainer.appendChild(commentNode);
     bottomArea.insertBefore(toastContainer, bottomArea.firstChild);
-    observeOriginContainer(commentNode, originContainer, toastContainer);
+    setTimeout(() => {
+        observeOriginContainer(commentNode, originContainer, toastContainer);
+    }, 1000);
     toastContainer.addEventListener("click", () => {
         originContainer.insertBefore(commentNode, originContainer.lastElementChild);
         originContainer.scrollIntoView({ behavior: "smooth", block: "center" });
