@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tsc": "tsc"
   },
   "repository": {
     "type": "git",
@@ -19,5 +20,8 @@
   "homepage": "https://github.com/zigsong/youtube-goback-timestamp#readme",
   "dependencies": {
     "@types/chrome": "^0.0.209"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.5"
   }
 }
