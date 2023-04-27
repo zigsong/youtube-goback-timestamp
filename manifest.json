@@ -3,6 +3,9 @@
   "name": "Hook Timestamp",
   "description": "Hook timestamp you've clicked",
   "version": "0.0.1",
+  "background": {
+    "service_worker": "./scripts/background.js"
+  },
   "content_scripts": [
     {
       "matches": ["*://*.youtube.com/*"],
@@ -10,6 +13,7 @@
       "run_at": "document_start"
     }
   ],
+  "permissions": ["tabs"],
   "icons": {
     "128": "assets/hook-timestamp-128.png"
   }

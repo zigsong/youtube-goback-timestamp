@@ -1,3 +1,28 @@
+chrome.runtime.onMessage.addListener(function (request) {
+  console.log("url change", request.url);
+  /** TODO: 목록이 아닌 영상 url일 때만 실행하도록 분리 */
+  reset();
+});
+
+// MARK: MutationObserver가 2번 호출되는 버그 방지
+let isContainerLoaded = false;
+
+const reset = () => {
+  commentsContainerObserver.disconnect();
+
+  const toastContainer = document.querySelector("div.toast-container");
+  if (toastContainer) {
+    toastContainer.remove();
+  }
+
+  isContainerLoaded = false;
+
+  commentsContainerObserver.observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
+};
+
 document.addEventListener("DOMContentLoaded", () => {
   commentsContainerObserver.observe(document.body, {
     childList: true,
@@ -5,6 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+/** MARK: toast가 뜬 상태에서 스크롤을 내리면 원래대로 돌아가게끔 */
 const observeOriginContainer = (
   commentNode: HTMLElement,
   originContainer: HTMLElement,
@@ -17,7 +43,10 @@ const observeOriginContainer = (
   const observer = new IntersectionObserver((entries, observer) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
-        originContainer.insertBefore(commentNode, originContainer.lastElementChild);
+        originContainer.insertBefore(
+          commentNode,
+          originContainer.lastElementChild
+        );
         toastContainer.remove();
         observer.unobserve(originContainer);
       }
@@ -27,10 +56,41 @@ const observeOriginContainer = (
   observer.observe(originContainer);
 };
 
-const handleClickTimeStamp = (commentNode: HTMLElement, originContainer: HTMLElement) => {
+const commentsContainerLoaded: MutationCallback = (mutationsList) => {
+  const comments = document.querySelector("#comments");
+  if (comments) {
+    const commentsContent = comments.querySelector("#contents");
+    if (commentsContent) {
+      isContainerLoaded = true;
+      commentsContent.addEventListener("click", handleClickComment);
+
+      return;
+    }
+  }
+
+  for (const mutation of mutationsList) {
+    const target = mutation.target as HTMLElement;
+
+    if (target.id === "comments") {
+      if (isContainerLoaded) return;
+
+      const commentsContent = target.querySelector("#contents");
+      if (commentsContent) {
+        isContainerLoaded = true;
+        commentsContent.addEventListener("click", handleClickComment);
+      }
+    }
+  }
+};
+
+const handleClickTimeStamp = (
+  commentNode: HTMLElement,
+  originContainer: HTMLElement
+) => {
   // MARK: copy할 수 있는 방안을 찾기
   const bottomArea = document.querySelector("div#below") as HTMLElement;
   const toastContainer = document.createElement("div");
+  toastContainer.classList.add("toast-container");
 
   toastContainer.setAttribute(
     "style",
@@ -52,67 +112,23 @@ const handleClickTimeStamp = (commentNode: HTMLElement, originContainer: HTMLEle
     observeOriginContainer(commentNode, originContainer, toastContainer);
   }, 1000);
 
-  toastContainer.addEventListener(
-    "click",
-    () => {
-      originContainer.insertBefore(commentNode, originContainer.lastElementChild);
-      originContainer.scrollIntoView({ behavior: "smooth", block: "center" });
-      toastContainer.remove();
-    },
-    { capture: true }
-  );
+  toastContainer.addEventListener("click", (e: Event) => {
+    if ((e.target as HTMLElement).tagName === "A") return;
+
+    originContainer.insertBefore(commentNode, originContainer.lastElementChild);
+    originContainer.scrollIntoView({ behavior: "smooth", block: "center" });
+    toastContainer.remove();
+  });
 };
 
-// MARK: MutationObserver가 2번 호출되는 버그 방지
-let isContainerLoaded = false;
-
-const commentsContainerLoaded: MutationCallback = (mutationsList, observer) => {
-  for (const mutation of mutationsList) {
-    const target = mutation.target as HTMLElement;
-
-    if ((target as HTMLElement).id === "comments") {
-      if (isContainerLoaded) return;
-
-      const commentsContainer = target.querySelector("#contents");
-      if (commentsContainer) {
-        commentsContentObserver.observe(commentsContainer, {
-          childList: true,
-          subtree: true,
-        });
-        isContainerLoaded = true;
-      }
-
-      observer.disconnect();
-    }
-  }
-};
-
-const commentsContentLoaded: MutationCallback = (mutationsList) => {
-  for (const mutation of mutationsList) {
-    const target = mutation.target as HTMLElement;
-
-    if (target.tagName === "YTD-COMMENT-THREAD-RENDERER") {
-      const thread = target;
-      const content = thread.querySelector("#comment-content") as HTMLElement;
-
-      if (!content) continue;
-
-      const links = content.querySelectorAll("a");
-      const timestamps = [...links].filter((a) => a.getAttribute("href")?.startsWith("/watch?v"));
-
-      if (timestamps.length > 0) {
-        timestamps.forEach((timestamp) => {
-          // timestamp.style.color = "orange";
-          timestamp.addEventListener("click", () =>
-            handleClickTimeStamp(content, thread.querySelector("#main") as HTMLElement)
-          );
-        });
-      }
-      // TODO: 언제 호출해야 하는지?
-      // observer.disconnect();
-    }
+const handleClickComment = (e: Event) => {
+  const target = e.target as HTMLElement;
+  if (target.getAttribute("href")?.startsWith("/watch?v")) {
+    handleClickTimeStamp(
+      target.parentElement as HTMLElement,
+      target.parentElement?.parentElement?.parentElement as HTMLElement
+    );
   }
 };
 
 const commentsContainerObserver = new MutationObserver(commentsContainerLoaded);
-const commentsContentObserver = new MutationObserver(commentsContentLoaded);
