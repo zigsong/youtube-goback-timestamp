@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Hook Timestamp",
-  "description": "Hook timestamp you've clicked",
+  "name": "Hook Timeline",
+  "description": "Hook timeline comment you've clicked",
   "version": "0.0.1",
   "background": {
     "service_worker": "./scripts/background.js"
