@@ -1,7 +1,7 @@
 chrome.runtime.onMessage.addListener(function (request) {
-  console.log("url change", request.url);
-  /** TODO: 목록이 아닌 영상 url일 때만 실행하도록 분리 */
-  reset();
+  if (request.url.includes("watch")) {
+    reset();
+  }
 });
 
 // MARK: MutationObserver가 2번 호출되는 버그 방지
